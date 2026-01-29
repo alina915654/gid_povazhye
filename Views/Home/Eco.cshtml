@@ -1,0 +1,141 @@
+﻿@model IEnumerable<WebApplication1.Models.Place>
+
+@{
+    ViewData["Title"] = "Экотуризм в Поважье";
+}
+
+<!-- 1. HERO SECTION -->
+<div class="position-relative p-5 text-center text-white mb-5 rounded-bottom-5 overflow-hidden"
+     style="background-image: url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center; min-height: 500px; margin-top: -80px; padding-top: 120px !important;">
+
+    <div style="position: absolute; top:0; left:0; right:0; bottom:0; background: linear-gradient(180deg, rgba(25, 135, 84, 0.4) 0%, rgba(20, 70, 40, 0.95) 100%);"></div>
+
+    <div class="position-relative z-index-1 mt-5">
+        <span class="badge bg-light text-success mb-3 px-3 py-2 rounded-pill text-uppercase fw-bold shadow">
+            🌿 Природа • Тишина • Ресурс
+        </span>
+        <h1 class="display-1 fw-bold mb-4">Дикий Север</h1>
+        <p class="lead mb-5 fs-4 mx-auto col-lg-8 opacity-90">
+            Эко-тропы, ягодные места и чистейший воздух Ваги. <br>Откройте для себя места, где время останавливается.
+        </p>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <!-- 2. СПИСОК ЭКО-МЕСТ (Динамический) -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold text-success">📍 Эко-локации</h2>
+            <p class="text-muted">Гостевые дома в лесу, парки и природные памятники</p>
+        </div>
+
+        @if (Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/400" : item.ImageUrl)"
+                             class="card-img-top" style="height: 220px; object-fit: cover;" alt="@item.Name">
+                        <div class="card-body">
+                            <h5 class="fw-bold">@item.Name</h5>
+                            <p class="text-muted small">@item.Address</p>
+                            <p class="card-text text-secondary">
+                                @(item.Description.Length > 80 ? item.Description.Substring(0, 80) + "..." : item.Description)
+                            </p>
+                            <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-success rounded-pill w-100 mt-2">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <div class="fs-1">🌲</div>
+                <p class="text-muted">Мы пока добавляем эко-места в базу. Загляните позже!</p>
+            </div>
+        }
+    </div>
+
+    <!-- 3. УСЛУГА: ПРОВОДНИК В ЛЕС -->
+    <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 bg-success text-white">
+        <div class="row g-0 align-items-center">
+            <div class="col-lg-6 p-5">
+                <span class="badge bg-warning text-dark mb-3">Эксклюзив</span>
+                <h2 class="fw-bold mb-3">Нужен проводник?</h2>
+                <p class="lead opacity-75 mb-4">
+                    Не знаете, где собирать морошку или ловить хариуса? Местный гид проведет вас по тайным тропам.
+                </p>
+                <ul class="list-unstyled fs-5 mb-4">
+                    <li>🍄 <strong>Тихая охота:</strong> грибные и ягодные места</li>
+                    <li>🎣 <strong>Рыбалка:</strong> аренда лодки и снастей</li>
+                    <li>🔥 <strong>Поход:</strong> костер, чай с травами и палатки</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 p-5 bg-white text-dark">
+                <h4 class="fw-bold mb-3">Заявка на проводника</h4>
+                <form onsubmit="alert('Заявка отправлена! Проводник свяжется с вами.'); event.preventDefault();">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control bg-light border-0" placeholder="Имя" required>
+                        <label>Ваше имя</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="tel" class="form-control bg-light border-0" placeholder="Телефон" required>
+                        <label>Ваш телефон</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Что интересно?</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input type="checkbox" class="btn-check" id="eco1" autocomplete="off">
+                            <label class="btn btn-outline-success rounded-pill" for="eco1">Ягоды/Грибы</label>
+
+                            <input type="checkbox" class="btn-check" id="eco2" autocomplete="off">
+                            <label class="btn btn-outline-success rounded-pill" for="eco2">Рыбалка</label>
+
+                            <input type="checkbox" class="btn-check" id="eco3" autocomplete="off">
+                            <label class="btn btn-outline-success rounded-pill" for="eco3">Прогулка</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow">Найти гида</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. КОДЕКС (Статика) -->
+    <div class="row text-center mt-5">
+        <div class="col-lg-8 mx-auto">
+            <h3 class="fw-bold text-success mb-4">♻️ Правила гостей леса</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="p-3 border border-success border-opacity-25 rounded-4">
+                        <div class="fs-2 mb-2">🗑️</div>
+                        <strong>Увозите мусор</strong>
+                        <p class="small text-muted mb-0">Лес — это дом зверей</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border border-success border-opacity-25 rounded-4">
+                        <div class="fs-2 mb-2">🔥</div>
+                        <strong>Огонь в мангалах</strong>
+                        <p class="small text-muted mb-0">Берегите мох и корни</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border border-success border-opacity-25 rounded-4">
+                        <div class="fs-2 mb-2">🔇</div>
+                        <strong>Тишина</strong>
+                        <p class="small text-muted mb-0">Слушайте пение птиц</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Пустой блок для отступа от подвала -->
+<div style="height: 120px;"></div>

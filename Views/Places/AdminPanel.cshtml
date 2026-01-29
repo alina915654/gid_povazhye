@@ -1,0 +1,102 @@
+﻿@model WebApplication1.Models.AdminViewModel
+
+@{
+    ViewData["Title"] = "Кабинет Администратора";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👮 Кабинет Администратора</h1>
+        <a asp-controller="Home" asp-action="AdminOff" class="btn btn-outline-danger">Выйти из админки</a>
+    </div>
+
+    <!-- ТАБЛИЦА 1: ЗАЯВКИ НА МАРШРУТЫ -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-header bg-primary text-white p-3">
+            <h4 class="m-0">💰 Заявки на маршруты (Leads)</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Имя клиента</th>
+                            <th>Контакты</th>
+                            <th>Интересы</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Orders)
+                        {
+                            <tr>
+                                <td>@item.CreatedAt.ToString("dd.MM HH:mm")</td>
+                                <td class="fw-bold">@item.ClientName</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">@item.Contact</span>
+                                </td>
+                                <td>@item.Interests</td>
+                                <td>
+                                    <form asp-action="DeleteOrder" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">✅ Выполнено</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.Orders.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted p-4">Новых заявок пока нет</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ТАБЛИЦА 2: ОТЗЫВЫ -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white p-3">
+            <h4 class="m-0">⭐ Отзывы на сайте</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Имя</th>
+                            <th>Оценка</th>
+                            <th>Текст</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Reviews)
+                        {
+                            <tr>
+                                <td>@item.Date.ToString("dd.MM.yyyy")</td>
+                                <td>@item.UserName</td>
+                                <td class="text-warning">
+                                    @for (int i = 0; i < item.Stars; i++)
+                                    {
+                                        <span>★</span>
+                                    }
+                                </td>
+                                <td>@item.Text</td>
+                                <td>
+                                    <form asp-action="DeleteReview" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Удалить</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div style="height: 120px;"></div>
+</div>

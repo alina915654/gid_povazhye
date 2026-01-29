@@ -1,0 +1,164 @@
+﻿@model WebApplication1.Models.Place
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4">
+
+    <!-- ===== HERO ===== -->
+    <div class="place-hero" style="background-image: url('@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/1400x600" : Model.ImageUrl)')">
+        <div class="place-hero-overlay"></div>
+    </div>
+
+    <!-- ===== HEADER ===== -->
+    <div class="mb-5 reveal">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small text-muted">
+                <li class="breadcrumb-item"><a asp-action="Index">Главная</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+
+        <h1 class="fw-bold display-5">@Model.Name</h1>
+
+        <div class="d-flex align-items-center gap-3 text-muted mt-2 flex-wrap">
+            <span>📍 @Model.City, @Model.Address</span>
+
+            @{
+                string badge = "bg-primary";
+                if (Model.Type == "Еда") badge = "bg-danger";
+                if (Model.Type == "Ночлег") badge = "bg-success";
+                if (Model.Type == "Достопримечательность") badge = "bg-warning text-dark";
+                if (Model.Type == "Развлечения") badge = "bg-info text-dark";
+            }
+            <span class="badge @badge px-3 py-2 rounded-pill shadow-sm">@Model.Type</span>
+        </div>
+    </div>
+
+    <div class="row g-5">
+
+        <!-- ===== LEFT ===== -->
+        <div class="col-lg-8">
+
+            <!-- ОПИСАНИЕ -->
+            <div class="mb-5 reveal">
+                <h3 class="section-title mb-3">О месте</h3>
+                <div class="description-wrapper">
+                    <div class="description-container desc-collapsed" id="descBlock">
+                        @Model.Description
+                    </div>
+                    <button class="btn-read-more" onclick="toggleDescription()" id="readMoreBtn">
+                        Читать полностью ↓
+                    </button>
+                </div>
+            </div>
+
+            <!-- УДОБСТВА -->
+            <div class="mb-5 reveal">
+                <h3 class="section-title mb-3">Что вас ждёт</h3>
+                <div class="row g-3">
+                    @if (Model.HasWifi)
+                    {
+                        <div class="col-md-6"><div class="feature-box">📶 Wi-Fi</div></div>
+                    }
+                    @if (Model.HasParking)
+                    {
+                        <div class="col-md-6"><div class="feature-box">🅿️ Парковка</div></div>
+                    }
+                    @if (Model.HasPayment)
+                    {
+                        <div class="col-md-6"><div class="feature-box">💳 Оплата картой</div></div>
+                    }
+                    @if (Model.HasGuide)
+                    {
+                        <div class="col-md-6"><div class="feature-box">🗣 Экскурсии</div></div>
+                    }
+                </div>
+            </div>
+
+            <!-- КАРТА -->
+            <div class="mb-5 reveal">
+                <h3 class="section-title mb-3">Расположение</h3>
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT SIDEBAR ===== -->
+        <div class="col-lg-4">
+            <div class="booking-card reveal">
+
+                <h4 class="fw-bold mb-4">Информация</h4>
+
+                @if (!string.IsNullOrEmpty(Model.WorkingHours))
+                {
+                    <p>🕒 <strong>Время работы:</strong><br>@Model.WorkingHours</p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.ContactName))
+                {
+                    <p>👤 <strong>Контакт:</strong><br>@Model.ContactName</p>
+                }
+
+                <div class="d-grid gap-3 mt-4">
+                    @if (!string.IsNullOrEmpty(Model.ContactPhone))
+                    {
+                        <a href="tel:@Model.ContactPhone" class="btn btn-success rounded-pill fw-bold">
+                            📞 Позвонить
+                        </a>
+                    }
+
+                    <a href="https://yandex.ru/maps/?pt=@Model.Longitude.ToString().Replace(",", "."),@Model.Latitude.ToString().Replace(",", ".")&z=16&l=map"
+                       target="_blank" class="btn btn-primary rounded-pill fw-bold">
+                        🚀 Построить маршрут
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+    <div style="height:120px"></div>
+</div>
+
+<script>
+    function toggleDescription() {
+        const block = document.getElementById("descBlock");
+        const btn = document.getElementById("readMoreBtn");
+
+        block.classList.toggle("desc-collapsed");
+        btn.innerText = block.classList.contains("desc-collapsed")
+            ? "Читать полностью ↓"
+            : "Свернуть ↑";
+    }
+</script>
+
+<script src="https://api-maps.yandex.ru/2.1/?apikey=ВАШ_API_КЛЮЧ&lang=ru_RU"></script>
+<script>
+    ymaps.ready(() => {
+        const lat = parseFloat("@Model.Latitude".replace(",", "."));
+        const lon = parseFloat("@Model.Longitude".replace(",", "."));
+
+        const map = new ymaps.Map("map", {
+            center: [lat, lon],
+            zoom: 15
+        });
+
+        map.geoObjects.add(new ymaps.Placemark([lat, lon], {
+            balloonContent: "@Model.Name"
+        }));
+    });
+</script>
+
+<script>
+    const reveals = document.querySelectorAll('.reveal');
+    const reveal = () => {
+        reveals.forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight - 80) {
+                el.classList.add('visible');
+            }
+        });
+    };
+    window.addEventListener('scroll', reveal);
+    reveal();
+</script>

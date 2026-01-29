@@ -1,0 +1,249 @@
+﻿@model IEnumerable<WebApplication1.Models.Place>
+
+@{
+    ViewData["Title"] = "Гид по Вельску и Шенкурску";
+}
+
+<!-- СКРИПТ АНИМАЦИИ -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            reveals.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50) {
+                    el.classList.add('visible');
+                }
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    });
+</script>
+
+<!-- 1. HERO SECTION -->
+<div class="hero-section" style="background-image: url('/images/hero_bg.jpg');">
+    <div class="hero-overlay"></div>
+    <div class="container text-center text-white position-relative z-index-1">
+        <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill text-uppercase fw-bold shadow">
+            ✨ Открой для себя Север
+        </span>
+        <h1 class="display-3 fw-bolder mb-3" style="text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            Поважье зовёт!
+        </h1>
+        <p class="lead mb-0 fs-4 mx-auto col-lg-8 opacity-90" style="text-shadow: 0 2px 5px rgba(0,0,0,0.5);">
+            Гид по самым уютным местам Вельского и Шенкурского районов.
+        </p>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- 2. SEARCH BAR -->
+    <div class="search-floating-card p-4 p-lg-5 mb-5">
+        <form asp-controller="Places" asp-action="Index" method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label text-muted small fw-bold text-uppercase ms-1">Что ищем?</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0 ps-3"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <select name="placeType" class="form-select form-control-custom border-start-0 ps-0">
+                            <option value="">Все категории</option>
+                            <option value="Еда">🍔 Где поесть</option>
+                            <option value="Ночлег">🛏 Где остановиться</option>
+                            <option value="Достопримечательность">🏛 Что посмотреть</option>
+                            <option value="Развлечения">🎢 Развлечения</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                    <label class="form-label text-muted small fw-bold text-uppercase ms-1">Ключевое слово</label>
+                    <input type="text" name="searchString" class="form-control form-control-custom" placeholder="Например: Музей, Кафе Уют...">
+                </div>
+                <div class="col-lg-3">
+                    <button type="submit" class="btn btn-primary btn-search-custom w-100 shadow">
+                        Найти места 🚀
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Заголовок -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h3 class="fw-bold text-dark m-0">
+            <i class="fa-solid fa-fire text-danger me-2"></i> Популярные места
+        </h3>
+        <span class="badge bg-light text-secondary border rounded-pill px-3">Объектов: @Model.Count()</span>
+    </div>
+
+    <!-- 3. СЕТКА КАРТОЧЕК -->
+    <div class="row g-4 mb-5">
+        @foreach (var item in Model)
+        {
+            <div class="col-12 col-sm-6 col-lg-4 animate-card">
+                <div class="card h-100 card-hover shadow-sm">
+                    <div class="img-wrapper">
+                        @{
+                            string badgeClass = "bg-primary";
+                            string iconClass = "fa-map-pin";
+                            if (item.Type == "Еда") { badgeClass = "bg-danger"; iconClass = "fa-utensils"; }
+                            if (item.Type == "Ночлег") { badgeClass = "bg-success"; iconClass = "fa-bed"; }
+                            if (item.Type == "Достопримечательность") { badgeClass = "bg-warning text-dark"; iconClass = "fa-landmark"; }
+                            if (item.Type == "Развлечения") { badgeClass = "bg-info text-dark"; iconClass = "fa-masks-theater"; }
+                        }
+
+                        <span class="badge @badgeClass badge-floating shadow">
+                            <i class="fa-solid @iconClass me-1"></i> @item.Type
+                        </span>
+
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" class="card-img-custom" alt="@item.Name">
+                        }
+                        else
+                        {
+                            <img src="https://via.placeholder.com/400x300?text=Нет+фото" class="card-img-custom" alt="Нет фото">
+                        }
+                    </div>
+
+                    <div class="card-body d-flex flex-column p-4">
+                        <h5 class="card-title fw-bold mb-2 text-dark">@item.Name</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="fa-solid fa-location-dot text-danger me-1"></i> @item.City, @item.Address
+                        </p>
+
+                        <p class="card-text text-secondary mb-4 flex-grow-1" style="font-size: 0.95rem;">
+                            @if (item.Description != null && item.Description.Length > 85)
+                            {
+                                @item.Description.Substring(0, 85)
+                        
+                                <span>...</span>
+                            }
+                            else
+                            {
+                                @item.Description
+                            }
+                        </p>
+
+                        <div class="d-grid">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary rounded-pill fw-bold border-2">Подробнее</a>
+                        </div>
+
+                        @if (Context.Request.Cookies.ContainsKey("IsAdmin"))
+                        {
+                            <div class="mt-3 pt-2 border-top text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="text-muted small text-decoration-none"><i class="fa-solid fa-pen-to-square"></i> Ред.</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 4. БЛОК МОНЕТИЗАЦИИ -->
+    <div class="card border-0 shadow-lg overflow-hidden rounded-5 mb-5 reveal monetization-card">
+        <div class="row g-0">
+            <div class="col-lg-5 monetization-left text-white p-5 d-flex flex-column justify-content-center">
+                <h2 class="display-6 fw-bold mb-3">Ваш личный Travel-эксперт</h2>
+                <p class="lead opacity-75 mb-4">Составлю индивидуальный маршрут под ваш бюджет.</p>
+                <div class="price-badge">500 ₽ / маршрут</div>
+            </div>
+            <div class="col-lg-7 bg-white p-5">
+                <h4 class="fw-bold mb-4">📝 Заявка на маршрут</h4>
+                <form asp-action="OrderRoute" method="post" onsubmit="alert('Заявка сохранена! Мы свяжемся с вами.')">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ваше имя</label>
+                            <input type="text" name="clientName" class="form-control custom-input" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">TG / Email</label>
+                            <input type="text" name="contact" class="form-control custom-input" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Интересы</label>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="Гастротуризм" id="i1">
+                                    <label class="form-check-label" for="i1">🍔 Еда</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="interests" value="История" id="i2">
+                                    <label class="form-check-label" for="i2">🏛 История</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button class="btn btn-dark w-100 py-3 rounded-4 fw-bold shadow-sm hover-scale" type="submit">Получить план поездки</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ОТЗЫВЫ -->
+    <div class="text-center mb-5 reveal review-block">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-2">Отзывы</span>
+        <h2 class="fw-bold">Впечатления гостей</h2>
+    </div>
+
+    <div class="row g-4 mb-5 reveal review-block">
+        @if (ViewBag.Reviews != null)
+        {
+            foreach (var review in ViewBag.Reviews)
+            {
+                <div class="col-md-4">
+                    <div class="card review-card h-100 border-0 shadow-sm">
+                        <div class="text-warning mb-2 fs-5">
+                            @for (int i = 0; i < review.Stars; i++)
+                            {
+                                <span>★</span>
+                            }
+                        </div>
+                        <p class="mb-3 fst-italic">"@review.Text"</p>
+                        <div class="fw-bold small text-primary">
+                            @review.UserName <span class="text-muted fw-normal">• @review.Date.ToString("dd.MM.yyyy")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- ФОРМА ОТЗЫВА -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-lg-5 bg-light mb-5 reveal review-block">
+        <form asp-action="AddReview" method="post" class="col-lg-8 mx-auto">
+            <h4 class="fw-bold text-center mb-4">Оставить отзыв</h4>
+
+            <div class="rating mb-4 text-center">
+                <input type="radio" name="stars" id="star5" value="5" required><label for="star5">★</label>
+                <input type="radio" name="stars" id="star4" value="4"><label for="star4">★</label>
+                <input type="radio" name="stars" id="star3" value="3"><label for="star3">★</label>
+                <input type="radio" name="stars" id="star2" value="2"><label for="star2">★</label>
+                <input type="radio" name="stars" id="star1" value="1"><label for="star1">★</label>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-floating"><input type="text" name="userName" class="form-control" placeholder="Имя" required><label>Ваше имя</label></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating"><input type="text" class="form-control" value="Вельск" disabled><label>Город</label></div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating"><textarea name="text" class="form-control" style="height: 100px" required></textarea><label>Отзыв</label></div>
+                </div>
+                <div class="col-12 text-center mt-3">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Отправить</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ОТСТУП ОТ ПОДВАЛА -->
+    <div style="height: 120px;"></div>
+
+</div>

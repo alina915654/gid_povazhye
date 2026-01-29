@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Гид Поважье</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Подключение иконок Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="~/css/site.css?v=2026" />
+    <link rel="stylesheet" href="~/WebApplication1.styles.css" asp-append-version="true" />
+</head>
+<script>
+    window.addEventListener("scroll", function() {
+        const navbar = document.querySelector(".navbar-glass");
+        if (window.scrollY > 50) {
+            navbar.classList.add("navbar-scrolled");
+        } else {
+            navbar.classList.remove("navbar-scrolled");
+        }
+    });
+</script>
+
+<body>
+    <header>
+        <!-- Стеклянная шапка -->
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light navbar-glass fixed-top">
+            <div class="container">
+                <a class="navbar-brand brand-logo" asp-area="" asp-controller="Places" asp-action="Index">
+                    🌲 Гид Поважье
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Places" asp-action="Index">Каталог мест</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Eco">🌿 Экотуризм</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="About">О команде</a>
+                        </li>
+                    </ul>
+
+                    <!-- Кнопки Админа (видны только если включен режим) -->
+                    @if (Context.Request.Cookies.ContainsKey("IsAdmin"))
+                    {
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-dark rounded-pill px-3 shadow-sm" asp-controller="Places" asp-action="AdminPanel">
+                                👮 Админка
+                            </a>
+                            <a class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" asp-controller="Places" asp-action="Create">
+                                ➕ Добавить
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ВАЖНО: Убрали div class="container", чтобы фон был на всю ширину -->
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="footer text-muted">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-6 text-center text-md-start">
+                    &copy; 2026 - <b>Открой Поважье</b> -
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Конфиденциальность</a>
+                </div>
+                <div class="col-12 col-md-6 text-center text-md-end mt-2 mt-md-0">
+                    <span class="small">Разработано для конкурса "Шаг в будущее" 🚀</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
